@@ -1,4 +1,6 @@
 import javax.swing.*;
+import javax.swing.UIManager.LookAndFeelInfo;
+
 import java.awt.*;
 import java.awt.event.*;
 
@@ -10,7 +12,7 @@ public class GUI extends JFrame {
 
     //------JComponents -------
     //gridComponent
-    private JButton[][] grid;
+    private Cell[][] grid;
 
     //Input components
     private JTextField updateGridSizeField;
@@ -19,8 +21,12 @@ public class GUI extends JFrame {
     private JButton algo1;
     private JButton algo2;
 
+    private JButton addStartButton;
+    private JButton addEndButton;
+    private JButton addWallButton;
+
     GUI() {
-        setLookAndFeel();
+        //setLookAndFeel();
 
         this.setLayout(new BorderLayout());
 
@@ -41,25 +47,35 @@ public class GUI extends JFrame {
     //try to set look and feel of components to OS look and feel
     public void setLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-                | UnsupportedLookAndFeelException ex) {
+            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                    | UnsupportedLookAndFeelException ex) {
+            }
         }
+
     }
 
     //initializing and returning the grid panel 
     public JPanel getGridPanel() {
         gridPane = new JPanel(new GridLayout());
         gridPane.setPreferredSize(new Dimension(800, 600));
-        gridPane.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+        // gridPane.setBorder(BorderFactory.createLineBorder(Color.GREEN));
         return gridPane;
     }
 
     public JPanel getInputPanel() {
         //setting inputPanel
-        inputPane = new JPanel(new GridBagLayout());
-        inputPane.setPreferredSize(new Dimension(100, 100));
-        inputPane.setBorder(BorderFactory.createLineBorder(Color.BLUE));
+        inputPane = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        // inputPane.setPreferredSize(new Dimension(100, 100));
+        // inputPane.setBorder(BorderFactory.createLineBorder(Color.BLUE));
 
         //input for grid size
         JLabel gridSizeInputLabel = new JLabel("Enter grid size:");
@@ -69,9 +85,15 @@ public class GUI extends JFrame {
 
         //display current algo 
         currentAlgo = new JTextArea("Curr algo");
+
         //row of algos
         algo1 = new JButton("Algo 1");
         algo2 = new JButton("Algo 2");
+
+        //grid input buttons
+        addStartButton = new JButton("Add Start");
+        addEndButton = new JButton("Add End");
+        addWallButton = new JButton("Add Wall");
 
         inputPane.add(gridSizeInputLabel);
         inputPane.add(updateGridSizeField);
@@ -81,6 +103,10 @@ public class GUI extends JFrame {
         inputPane.add(algo1);
         inputPane.add(algo2);
 
+        inputPane.add(addStartButton);
+        inputPane.add(addEndButton);
+        inputPane.add(addWallButton);
+
         return inputPane;
     }
 
@@ -88,6 +114,20 @@ public class GUI extends JFrame {
     void addUpdateGridSizeActionListener(ActionListener listenerForUpdateGridSizeButton) {
         updateGridSizeButton.addActionListener(listenerForUpdateGridSizeButton);
     }
+
+    void addStartButtonListener(ActionListener listenerForAddStartButton) {
+        addStartButton.addActionListener(listenerForAddStartButton);
+    }
+
+    void addEndButtonListener(ActionListener listenerForAddEndButton) {
+        addEndButton.addActionListener(listenerForAddEndButton);
+    }
+
+    void addWallButtonListener(ActionListener listenerForAddWallButton) {
+        addWallButton.addActionListener(listenerForAddWallButton);
+    }
+
+
 
     public Point getGridSize() {
         //add input validation later
@@ -98,19 +138,25 @@ public class GUI extends JFrame {
     }
 
     public void setGrid(Matrix matrix) {
-        gridPane.setLayout(new GridLayout(matrix.getRowLength(), matrix.getColumnLength()));
-        grid = new JButton[matrix.getRowLength()][matrix.getColumnLength()];
+
+        GridLayout layout = new GridLayout(matrix.getRowLength(), matrix.getColumnLength());
+        layout.setHgap(0);
+        layout.setVgap(0);
+        gridPane.setLayout(layout);
+
+        grid = new Cell[matrix.getRowLength()][matrix.getColumnLength()];
+
+        gridPane.removeAll();
         for (int r = 0; r < matrix.getRowLength(); r++) {
             for (int c = 0; c < matrix.getColumnLength(); c++) {
-                grid[r][c] = new JButton();
+                grid[r][c] = new Cell(r, c);
+                if (matrix.get(r, c) == 1) {
+                    grid[r][c].setAsStart();
+                }
                 gridPane.add(grid[r][c]);
             }
         }
-
-    }
-
-    public void updateGrid(Matrix matrix) {
-
+        this.pack();
     }
 
     public void displayErrorMessage(String errorMessage) {
@@ -119,6 +165,10 @@ public class GUI extends JFrame {
 
     public static void main(String[] args) {
         new GUI();
+    }
+
+    public Cell[][] getGrid(){
+        return this.grid;
     }
 
 }

@@ -1,8 +1,8 @@
 /*
     GridModel class extends the Matrix, and represents the board/field, it will contain all the objects in the board/field including:
-    *Starting Point
-    *Ending Point
-    *Obstacles 
+    *Starting Point = 1
+    *Ending Point = 2
+    *Obstacles  = -1
 
     It also contains and uses the Pathfinding Algorithms themselves
 */

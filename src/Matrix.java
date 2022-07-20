@@ -1,8 +1,8 @@
 /*
     Matrix class represents the board/field, it will contain all the objects in the board/field including:
-    *Starting Point
-    *Ending Point
-    *Obstacles 
+    *Starting Point = 1
+    *Ending Point = 2
+    *Obstacles  = -1
 */
 
 import java.util.*;
@@ -82,16 +82,22 @@ public class Matrix {
         }
     }
 
-    //updateSize() updates the size of the matrix but copies over the state of the old matrix to the new matrix
-    public void updateSize(Point inputSize) {
-        int[][] toBe = new int[inputSize.x][inputSize.y];
-        for (int r = 0; r < matrix.length; r++) {
-            for (int c = 0; c < matrix[r].length; c++) {
-                toBe[r][c] = matrix[r][c];
-            }
-        }
-        this.matrix = toBe;
-    }
+    //updateSize() updates the size of the matrix 
+    // public void updateSize(Point inputSize) {
+    //     int[][] toBe = new int[inputSize.x][inputSize.y];
+
+    //     int row = Math.max(inputSize.x, this.size.x);
+    //     int col = Math.max(inputSize.y, this.size.y);
+
+    //     for (int r = 0; r < row; r++) {
+    //         for (int c = 0; c < col; c++) {
+    //             toBe[r][c] = matrix[r][c];
+    //         }
+    //     }
+    //     this.matrix = toBe;
+    //     this.size = inputSize;
+
+    // }
 
     public int getRowLength() {
         return this.size.x;
@@ -99,5 +105,13 @@ public class Matrix {
 
     public int getColumnLength() {
         return this.size.y;
+    }
+
+    public int get(int row, int col) {
+        if (validPointOnMatrix(new Point(row, col)))
+            return matrix[row][col];
+        else
+            return -10;
+
     }
 }
