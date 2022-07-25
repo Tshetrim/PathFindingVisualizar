@@ -20,14 +20,14 @@ public class GUI extends JFrame {
     private JTextArea currentAlgo;
     private JButton algo1;
     private JButton algo2;
+    private JButton runButton;
 
     private JButton addStartButton;
     private JButton addEndButton;
     private JButton addWallButton;
 
     GUI() {
-        //setLookAndFeel();
-
+        setLookAndFeel(0);
         this.setLayout(new BorderLayout());
 
         gridPane = getGridPanel();
@@ -45,28 +45,31 @@ public class GUI extends JFrame {
     }
 
     //try to set look and feel of components to OS look and feel
-    public void setLookAndFeel() {
-        try {
-            for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
+    public void setLookAndFeel(int val) {
+        if (val == 1) {
+            try {
+                for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                    if ("Nimbus".equals(info.getName())) {
+                        UIManager.setLookAndFeel(info.getClassName());
+                        break;
+                    }
                 }
+            } catch (Exception e) {
+                System.out.println("Could not set to Nimbus Look and Feel");
             }
-        } catch (Exception e) {
+        } else if (val == 2) {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                     | UnsupportedLookAndFeelException ex) {
             }
         }
-
     }
 
     //initializing and returning the grid panel 
     public JPanel getGridPanel() {
         gridPane = new JPanel(new GridLayout());
-        gridPane.setPreferredSize(new Dimension(800, 600));
+        gridPane.setPreferredSize(new Dimension(800, 700));
         // gridPane.setBorder(BorderFactory.createLineBorder(Color.GREEN));
         return gridPane;
     }
@@ -87,13 +90,16 @@ public class GUI extends JFrame {
         currentAlgo = new JTextArea("Curr algo");
 
         //row of algos
-        algo1 = new JButton("Algo 1");
-        algo2 = new JButton("Algo 2");
+        algo1 = new JButton("Depth-First-Search");
+        algo2 = new JButton("A* Path Finding");
 
         //grid input buttons
         addStartButton = new JButton("Add Start");
         addEndButton = new JButton("Add End");
         addWallButton = new JButton("Add Wall");
+
+        //run button
+        runButton = new JButton("Run");
 
         inputPane.add(gridSizeInputLabel);
         inputPane.add(updateGridSizeField);
@@ -107,6 +113,7 @@ public class GUI extends JFrame {
         inputPane.add(addEndButton);
         inputPane.add(addWallButton);
 
+        inputPane.add(runButton);
         return inputPane;
     }
 
@@ -127,7 +134,9 @@ public class GUI extends JFrame {
         addWallButton.addActionListener(listenerForAddWallButton);
     }
 
-
+    void addRunButtonListener(ActionListener listenerForRunButton) {
+        runButton.addActionListener(listenerForRunButton);
+    }
 
     public Point getGridSize() {
         //add input validation later
@@ -138,7 +147,6 @@ public class GUI extends JFrame {
     }
 
     public void setGrid(Matrix matrix) {
-
         GridLayout layout = new GridLayout(matrix.getRowLength(), matrix.getColumnLength());
         layout.setHgap(0);
         layout.setVgap(0);
@@ -167,8 +175,23 @@ public class GUI extends JFrame {
         new GUI();
     }
 
-    public Cell[][] getGrid(){
+    public Cell[][] getGrid() {
         return this.grid;
+    }
+
+    public JTextField getGridSizeTextField() {
+        return this.updateGridSizeField;
+    }
+
+    //returns the JFrame[][] grid as an int[][]
+    public int[][] getGridAsIntArr() {
+        int[][] output = new int[grid.length][grid[0].length];
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[0].length; c++) {
+                output[r][c] = grid[r][c].getValue();
+            }
+        }
+        return output;
     }
 
 }

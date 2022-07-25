@@ -1,63 +1,87 @@
 import java.awt.Color;
 
 import javax.swing.JButton;
-import java.awt.event.*;
-
 import javax.swing.event.MouseInputListener;
 
-
 public class Cell extends JButton {
-    int col;
-    int row;
+    private int col;
+    private int row;
 
-    boolean start;
-    boolean end;
-    boolean wall;
+    private int value; //0=clear, 1 = start, 2=end, -1= wall //3 searched //4 queued to be searched
 
-    public Cell(int col, int row) {
-        this.col = col;
+    public Cell(int row, int col) {
         this.row = row;
+        this.col = col;
+        this.value = 0;
 
         setBackground(Color.WHITE);
         setForeground(Color.BLACK);
     }
 
     public void setAsStart() {
-        start = true;
-        //this.setName("1");
-        this.setText("Start");
+        value = 1;
+        setText("Start");
         setBackground(Color.GREEN);
     }
 
     public void setAsEnd() {
-        end = true;
-        //this.setName("0");
-        this.setText("End");
-        setBackground(Color.BLUE);
+        value = 2;
+        setText("End");
+        setBackground(Color.RED);
     }
 
     public void setAsWall() {
-        wall = true;
-        this.setName("-1");
-        //this.setText("Wall");
+        value = -1;
+        //setText("Wall");
         setBackground(Color.BLACK);
     }
 
-    public void clear() {
-        start = false;
-        end = false;
-        wall = false;
+    public void setAsSeen() {
+        value = 3;
+        setBackground(Color.YELLOW);
+    }
+    
+    public void setAsQueued(){
+        value = 4;
+        setBackground(Color.ORANGE);
+    }
 
-        this.setName("");
-        this.setText("");
+    public void setAsBest(){
+        value = 5;
+        setBackground(Color.BLUE);
+    }
+
+    public void clear() {
+        value = 0;
+        setText("");
 
         setBackground(Color.WHITE);
         setForeground(Color.BLACK);
     }
 
-
     public void addCellMouseListener(MouseInputListener listenerForCell) {
         this.addMouseListener(listenerForCell);
+    }
+
+    public int getValue() {
+        return this.value;
+    }
+
+    //do not override with getX and getY because they have exisiting funcitonality that will get broken
+    public int getRow() {
+        return this.row;
+    }
+
+    public int getCol() {
+        return this.col;
+    }
+
+    public boolean isWall() {
+        return this.value == -1;
+    }
+
+    public boolean isSeen() {
+        return this.value == 3;
     }
 
 }
