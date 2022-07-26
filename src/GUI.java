@@ -27,6 +27,7 @@ public class GUI extends JFrame {
     private JButton addWallButton;
 
     GUI() {
+
         setLookAndFeel(0);
         this.setLayout(new BorderLayout());
 
@@ -84,7 +85,7 @@ public class GUI extends JFrame {
         JLabel gridSizeInputLabel = new JLabel("Enter grid size:");
         updateGridSizeField = new JTextField();
         updateGridSizeField.setColumns(5);
-        updateGridSizeButton = new JButton("submit");
+        updateGridSizeButton = new JButton("submit/clear");
 
         //display current algo 
         currentAlgo = new JTextArea("Curr algo");
@@ -165,6 +166,25 @@ public class GUI extends JFrame {
             }
         }
         this.pack();
+    }
+
+    public void clearGrid() {
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[0].length; c++) {
+                grid[r][c].clear();
+            }
+        }
+    }
+
+    //for running again in the same grid size
+    public void clearExtrasGrid() {
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[0].length; c++) {
+                Cell curr = grid[r][c];
+                if (!(curr.isWall() || curr.isStart() || curr.isEnd()))
+                    curr.clear();
+            }
+        }
     }
 
     public void displayErrorMessage(String errorMessage) {

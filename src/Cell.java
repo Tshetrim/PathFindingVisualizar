@@ -38,15 +38,17 @@ public class Cell extends JButton {
 
     public void setAsSeen() {
         value = 3;
+        setText("Checked");
         setBackground(Color.YELLOW);
     }
-    
-    public void setAsQueued(){
+
+    public void setAsQueued() {
         value = 4;
+        setText("Queued");
         setBackground(Color.ORANGE);
     }
 
-    public void setAsBest(){
+    public void setAsBest() {
         value = 5;
         setBackground(Color.BLUE);
     }
@@ -82,6 +84,14 @@ public class Cell extends JButton {
 
     public boolean isSeen() {
         return this.value == 3;
+    }
+
+    public boolean isStart() {
+        return this.value == 1;
+    }
+
+    public boolean isEnd() {
+        return this.value == 2;
     }
 
 }

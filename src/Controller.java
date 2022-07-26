@@ -28,6 +28,8 @@ public class Controller {
         registerListeners();
 
         run();
+        this.gui.displayErrorMessage(
+                "Right click to clear cell, drag to quickly fill cell. Only Depth for Search is currently implemented.");
     }
 
     public void run() {
@@ -63,7 +65,10 @@ public class Controller {
             System.out.println(newSize.getX() + " " + newSize.getY());
             if (newSize.getX() <= 0 || newSize.getY() <= 0)
                 gui.displayErrorMessage("Invalid size");
-            else {
+            else if (newSize.equals(matrix.getSize())) {
+                gui.clearGrid();
+                resetStartEnd();
+            } else {
                 try {
                     newSize = gui.getGridSize();
                     matrix = new Matrix(newSize);
@@ -111,6 +116,7 @@ public class Controller {
     class RunButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             try {
+                gui.clearExtrasGrid();
                 matrix.updateMatrix(start, end, gui.getGridAsIntArr());
                 new Algorithms(gui).BFS(start, end, gui.getGrid());
             } catch (Exception E) {
