@@ -1,6 +1,6 @@
 import java.awt.Color;
-
 import javax.swing.JButton;
+import javax.swing.border.LineBorder;
 import javax.swing.event.MouseInputListener;
 
 public class Cell extends JButton {
@@ -14,8 +14,11 @@ public class Cell extends JButton {
         this.col = col;
         this.value = 0;
 
+
         setBackground(Color.WHITE);
         setForeground(Color.BLACK);
+        setBorder(new LineBorder(Color.BLACK));
+        
     }
 
     public void setAsStart() {
@@ -60,6 +63,11 @@ public class Cell extends JButton {
 
         setBackground(Color.WHITE);
         setForeground(Color.BLACK);
+    }
+
+    //cells can be current and other states simutaneously 
+    public void setAsCurrent() {
+        setBorderPainted(false);
     }
 
     public void addCellMouseListener(MouseInputListener listenerForCell) {

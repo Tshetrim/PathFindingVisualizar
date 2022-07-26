@@ -8,9 +8,9 @@ import javax.swing.SwingWorker;
 
 public class Algorithms {
     private GUI gui;
-    private int layerTime = 100;
-    private int checkTime = 50; //500
-    private int queueTime = 50; //500
+    private int layerTime;
+    private int checkTime; //500
+    private int queueTime; //500
 
     Algorithms(GUI gui) {
         this.gui = gui;
@@ -149,6 +149,18 @@ public class Algorithms {
         // System.out.println(" is valid");
 
         return true;
+    }
+
+    public void setLayerTime(int layerTime) {
+        this.layerTime = layerTime;
+    }
+
+    public void setCheckTime(int checkTime) {
+        this.checkTime = checkTime;
+    }
+
+    public void setQueueTime(int queueTime) {
+        this.queueTime = queueTime;
     }
 
 }

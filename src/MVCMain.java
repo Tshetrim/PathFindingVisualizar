@@ -11,7 +11,8 @@ public class MVCMain {
 
                 GUI theView = new GUI();
                 Matrix theMatrixModel = new Matrix(new Point(8, 8));
-                Controller theController = new Controller(theView, theMatrixModel);
+                Algorithms algo = new Algorithms(theView);
+                Controller theController = new Controller(theView, theMatrixModel, algo);
                 
             }
         });

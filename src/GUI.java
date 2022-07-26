@@ -1,5 +1,6 @@
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.event.ChangeListener;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -9,6 +10,7 @@ public class GUI extends JFrame {
     //JPanels contains all the JComponents
     private JPanel gridPane;
     private JPanel inputPane;
+    private JPanel timeSliderPane;
 
     //------JComponents -------
     //gridComponent
@@ -26,9 +28,31 @@ public class GUI extends JFrame {
     private JButton addEndButton;
     private JButton addWallButton;
 
+    //speed sliders 
+    private JSlider layerTimeSlider;
+    private JSlider checkTimeSlider;
+    private JSlider queueTimeSlider;
+
+    private JLabel layerTimeLabel;
+    private JLabel checkTimeLabel;
+    private JLabel queueTimeLabel;
+
+    //speed sliders constraints 
+    private final int LAYER_TIME_MAX = 3000;
+    private final int LAYER_TIME_MIN = 0;
+    private final int LAYER_TIME_INIT = 200;
+
+    private final int CHECK_TIME_MAX = 3000;
+    private final int CHECK_TIME_MIN = 0;
+    private final int CHECK_TIME_INIT = 50;
+
+    private final int QUEUE_TIME_MAX = 3000;
+    private final int QUEUE_TIME_MIN = 0;
+    private final int QUEUE_TIME_INIT = 50;
+
     GUI() {
 
-        setLookAndFeel(0);
+        setLookAndFeel(1);
         this.setLayout(new BorderLayout());
 
         gridPane = getGridPanel();
@@ -36,6 +60,9 @@ public class GUI extends JFrame {
 
         inputPane = getInputPanel();
         this.add(inputPane, BorderLayout.NORTH);
+
+        timeSliderPane = getTimeSliderPanel();
+        this.add(timeSliderPane, BorderLayout.EAST);
 
         //JFRAME
         this.setTitle("Pathfinding Visualizer");
@@ -64,6 +91,12 @@ public class GUI extends JFrame {
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
                     | UnsupportedLookAndFeelException ex) {
             }
+        } else if (val == 3) {
+            // try {
+            //     UIManager.setLookAndFeel( new FlatLightLaf() );
+            // } catch( Exception ex ) {
+            //     System.err.println( "Failed to initialize LaF" );
+            // }
         }
     }
 
@@ -102,6 +135,7 @@ public class GUI extends JFrame {
         //run button
         runButton = new JButton("Run");
 
+        //adding components to panel
         inputPane.add(gridSizeInputLabel);
         inputPane.add(updateGridSizeField);
         inputPane.add(updateGridSizeButton);
@@ -115,7 +149,46 @@ public class GUI extends JFrame {
         inputPane.add(addWallButton);
 
         inputPane.add(runButton);
+
         return inputPane;
+    }
+
+    public JPanel getTimeSliderPanel() {
+        timeSliderPane = new JPanel();
+        timeSliderPane.setLayout(new BoxLayout(timeSliderPane, BoxLayout.Y_AXIS));
+
+        //JSliders
+        layerTimeSlider = new JSlider(JSlider.HORIZONTAL, LAYER_TIME_MIN, LAYER_TIME_MAX, LAYER_TIME_INIT);
+        checkTimeSlider = new JSlider(JSlider.HORIZONTAL, CHECK_TIME_MIN, CHECK_TIME_MAX, CHECK_TIME_INIT);
+        queueTimeSlider = new JSlider(JSlider.HORIZONTAL, QUEUE_TIME_MIN, QUEUE_TIME_MAX, QUEUE_TIME_INIT);
+
+        layerTimeSlider.setMajorTickSpacing(1000);
+        checkTimeSlider.setMajorTickSpacing(1000);
+        queueTimeSlider.setMajorTickSpacing(1000);
+
+        layerTimeSlider.setPaintLabels(true);
+        checkTimeSlider.setPaintLabels(true);
+        queueTimeSlider.setPaintLabels(true);
+
+        layerTimeSlider.setPaintTicks(true);
+        checkTimeSlider.setPaintTicks(true);
+        queueTimeSlider.setPaintTicks(true);
+
+        layerTimeLabel = new JLabel("Slowdown speed of starting new layer");
+        checkTimeLabel = new JLabel("Slowdown speed of checking cell");
+        queueTimeLabel = new JLabel("Slowdown speed of queuing cell");
+
+        //adding components to panel
+        timeSliderPane.add(layerTimeLabel);
+        timeSliderPane.add(layerTimeSlider);
+
+        timeSliderPane.add(checkTimeLabel);
+        timeSliderPane.add(checkTimeSlider);
+
+        timeSliderPane.add(queueTimeLabel);
+        timeSliderPane.add(queueTimeSlider);
+
+        return timeSliderPane;
     }
 
     //input action listeners
@@ -137,6 +210,18 @@ public class GUI extends JFrame {
 
     void addRunButtonListener(ActionListener listenerForRunButton) {
         runButton.addActionListener(listenerForRunButton);
+    }
+
+    void addLayerTimeListener(ChangeListener listenerForLayerTimeSlider) {
+        layerTimeSlider.addChangeListener(listenerForLayerTimeSlider);
+    }
+
+    void addCheckTimeListener(ChangeListener listenerForCheckTimeSlider) {
+        checkTimeSlider.addChangeListener(listenerForCheckTimeSlider);
+    }
+
+    void addQueueTimeListener(ChangeListener listenerForQueueTimeSlider) {
+        queueTimeSlider.addChangeListener(listenerForQueueTimeSlider);
     }
 
     public Point getGridSize() {
@@ -191,10 +276,6 @@ public class GUI extends JFrame {
         JOptionPane.showMessageDialog(this, errorMessage);
     }
 
-    public static void main(String[] args) {
-        new GUI();
-    }
-
     public Cell[][] getGrid() {
         return this.grid;
     }
@@ -212,6 +293,11 @@ public class GUI extends JFrame {
             }
         }
         return output;
+    }
+
+    //0 = layer, 1 = check, 2 = queue initial times 
+    public int[] getInitialSliderValues() {
+        return new int[] { LAYER_TIME_INIT, CHECK_TIME_INIT, QUEUE_TIME_INIT };
     }
 
 }

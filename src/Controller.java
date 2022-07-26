@@ -6,11 +6,15 @@
 import java.awt.event.*;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputListener;
 
 public class Controller {
     private Matrix matrix;
     private GUI gui;
+    private Algorithms algo;
 
     private String currentAlgorithm;
 
@@ -20,9 +24,10 @@ public class Controller {
     //private boolean start, end; //tracks if a start and end cell is in grid
     private Point start, end;
 
-    public Controller(GUI gui, Matrix matrix) {
+    public Controller(GUI gui, Matrix matrix, Algorithms algo) {
         this.gui = gui;
         this.matrix = matrix;
+        this.algo = algo;
 
         this.clickCellAction = 2;
         registerListeners();
@@ -36,6 +41,7 @@ public class Controller {
         this.gui.setGrid(matrix);
         registerCellMatrixListeners();
         this.gui.getGridSizeTextField().setText(matrix.getSize().getX() + "," + matrix.getSize().getY());
+        initializeSliderSpeed();
     }
 
     //adds action listeners to components in the GUI 
@@ -45,6 +51,9 @@ public class Controller {
         gui.addEndButtonListener(new AddEndListener());
         gui.addWallButtonListener(new AddWallListener());
         gui.addRunButtonListener(new RunButtonListener());
+        gui.addLayerTimeListener(new LayerTimeSliderListener());
+        gui.addCheckTimeListener(new CheckTimeSliderListener());
+        gui.addQueueTimeListener(new QueueTimeSliderListener());
     }
 
     //adds action listeners to all cells n the grid -> must call after every setGrid(Matrix)
@@ -82,6 +91,7 @@ public class Controller {
         }
     }
 
+    //sets the add cell setting to be Start cell 
     class AddStartListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             try {
@@ -92,6 +102,7 @@ public class Controller {
         }
     }
 
+    //sets the add cell setting to be End cell 
     class AddEndListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             try {
@@ -103,6 +114,7 @@ public class Controller {
         }
     }
 
+    //sets the add cell setting to be walls 
     class AddWallListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             try {
@@ -113,18 +125,20 @@ public class Controller {
         }
     }
 
+    //runs currently chosen algorithm 
     class RunButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             try {
                 gui.clearExtrasGrid();
                 matrix.updateMatrix(start, end, gui.getGridAsIntArr());
-                new Algorithms(gui).BFS(start, end, gui.getGrid());
+                algo.BFS(start, end, gui.getGrid());
             } catch (Exception E) {
                 gui.displayErrorMessage("Run error");
             }
         }
     }
 
+    //Action listener for cell grid -> adding cells, deleting cells, dragging add/delete cells
     class CellMouseListener implements MouseInputListener {
 
         //sets mouse pressed on mouse release 
@@ -205,6 +219,40 @@ public class Controller {
         }
     }
 
+    //add listeners to slider to update slider time values
+    class LayerTimeSliderListener implements ChangeListener {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            JSlider source = (JSlider)e.getSource();
+            if (!source.getValueIsAdjusting()) {
+                int layerTime = (int)source.getValue();
+                algo.setLayerTime(layerTime);
+            }    
+        }
+    }
+
+    class CheckTimeSliderListener implements ChangeListener {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            JSlider source = (JSlider)e.getSource();
+            if (!source.getValueIsAdjusting()) {
+                int checkTime = (int)source.getValue();
+                algo.setCheckTime(checkTime);
+            }    
+        }
+    }
+
+    class QueueTimeSliderListener implements ChangeListener {
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            JSlider source = (JSlider)e.getSource();
+            if (!source.getValueIsAdjusting()) {
+                int queueTime = (int)source.getValue();
+                algo.setQueueTime(queueTime);
+            }    
+        }
+    }
+
     //------------------------helper methods----------------------------
     //updates the start and end global booleans to false if current cell is start or end and being overwritten
     private void updateStartEndWhenUpdating(Cell curr) {
@@ -224,6 +272,13 @@ public class Controller {
 
         //start = null;
         //end = null;
+    }
+
+    private void initializeSliderSpeed(){
+        int[] times = gui.getInitialSliderValues();
+        algo.setLayerTime(times[0]);
+        algo.setCheckTime(times[1]);
+        algo.setQueueTime(times[2]);
     }
 
 }
