@@ -29,7 +29,7 @@ public class Controller {
 
         run();
         this.gui.displayErrorMessage(
-                "Right click to clear cell, drag to quickly fill cell. Only Depth for Search is currently implemented.");
+                "Right click to clear cell, drag to quickly fill cell. Only Breadth-First Search is currently implemented.");
     }
 
     public void run() {
