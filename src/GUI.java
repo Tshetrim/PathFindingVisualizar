@@ -91,7 +91,7 @@ public class GUI extends JFrame {
         currentAlgo = new JTextArea("Curr algo");
 
         //row of algos
-        algo1 = new JButton("Depth-First-Search");
+        algo1 = new JButton("Breadth-First-Search");
         algo2 = new JButton("A* Path Finding");
 
         //grid input buttons

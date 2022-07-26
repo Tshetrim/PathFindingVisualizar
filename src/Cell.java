@@ -50,6 +50,7 @@ public class Cell extends JButton {
 
     public void setAsBest() {
         value = 5;
+        setText("Path");
         setBackground(Color.BLUE);
     }
 

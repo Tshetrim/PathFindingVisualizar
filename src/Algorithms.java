@@ -7,7 +7,10 @@ import java.util.*;
 import javax.swing.SwingWorker;
 
 public class Algorithms {
-    GUI gui;
+    private GUI gui;
+    private int layerTime = 100;
+    private int checkTime = 50; //500
+    private int queueTime = 50; //500
 
     Algorithms(GUI gui) {
         this.gui = gui;
@@ -37,7 +40,7 @@ public class Algorithms {
                     // System.out.println("----------------------------new ring-------------------------");
 
                     //update gui
-                    Thread.sleep(1000);
+                    Thread.sleep(layerTime);
                     publish();
 
                     for (int i = 0; i < ringLength; i++) {
@@ -53,7 +56,7 @@ public class Algorithms {
                             current.setAsSeen();
 
                         //update GUI
-                        Thread.sleep(100);
+                        Thread.sleep(checkTime);
                         publish();
 
                         for (int[] direction : directions) {
@@ -70,7 +73,7 @@ public class Algorithms {
                                 arr[nextPos.getX()][nextPos.getY()].setAsQueued();
 
                                 //update GUI
-                                Thread.sleep(100);
+                                Thread.sleep(queueTime);
                                 publish();
                             }
 
