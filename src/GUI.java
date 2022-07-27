@@ -75,7 +75,7 @@ public class GUI extends JFrame {
         inputPane = getInputPanel();
         this.add(inputPane, BorderLayout.NORTH);
 
-        rightInputPane = getTimeSliderPanel();
+        rightInputPane = getRightInputPanel();
         this.add(rightInputPane, BorderLayout.EAST);
 
         //JFRAME
@@ -131,7 +131,7 @@ public class GUI extends JFrame {
     //initializing and returning the grid panel 
     public JPanel getGridPanel() {
         gridPane = new JPanel(new GridLayout());
-        gridPane.setPreferredSize(new Dimension(800, 700));
+        gridPane.setPreferredSize(new Dimension(900, 700));
         // gridPane.setBorder(BorderFactory.createLineBorder(Color.GREEN));
         return gridPane;
     }
@@ -181,7 +181,7 @@ public class GUI extends JFrame {
         return inputPane;
     }
 
-    public JPanel getTimeSliderPanel() {
+    public JPanel getRightInputPanel() {
         rightInputPane = new JPanel();
         rightInputPane.setLayout(new BoxLayout(rightInputPane, BoxLayout.Y_AXIS));
 
@@ -216,7 +216,9 @@ public class GUI extends JFrame {
 
         //JText Area
         textArea = new JTextPane();
-        //setting text pane 
+        DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+        // setting text pane to have centered text 
         StyledDocument documentStyle = textArea.getStyledDocument();
         SimpleAttributeSet centerAttribute = new SimpleAttributeSet();
         StyleConstants.setAlignment(centerAttribute, StyleConstants.ALIGN_CENTER);
@@ -346,7 +348,7 @@ public class GUI extends JFrame {
         }
     }
 
-    public void displayErrorMessage(String errorMessage) {
+    public void displayMessage(String errorMessage) {
         JOptionPane.showMessageDialog(this, errorMessage, "", JOptionPane.PLAIN_MESSAGE);
     }
 
@@ -380,7 +382,7 @@ public class GUI extends JFrame {
             textArea.setText(prev + text);
 
         } catch (Exception e) {
-            displayErrorMessage("Unable to write text to Text pane");
+            displayMessage("Unable to write text to Text pane");
         }
     }
 

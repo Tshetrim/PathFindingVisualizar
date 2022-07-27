@@ -108,7 +108,7 @@ public class Algorithms {
                             "\nSaw " + path.size() + " cells"
                             + GUI.STRING_BREAK);
                     gui.addText(outputText);
-                    gui.displayErrorMessage(outputText);
+                    gui.displayMessage(outputText);
 
                 } else {
                     String outputText = ("Unable to find path\n" +
@@ -118,7 +118,7 @@ public class Algorithms {
                             "\nSaw " + path.size() + " cells"
                             + GUI.STRING_BREAK);
                     gui.addText(outputText);
-                    gui.displayErrorMessage("Could not find a path");
+                    gui.displayMessage("Could not find a path");
                 }
 
                 return null;

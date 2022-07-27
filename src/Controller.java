@@ -36,12 +36,11 @@ public class Controller {
         registerListeners();
         initDefaultValues();
 
-        gui.addText(
-                "Right click to clear cell, drag to quickly fill cell. \n Only Breadth-First Search is currently implemented."
-                        + GUI.STRING_BREAK);
     }
 
     public void initDefaultValues() {
+        gui.addText(getStartingText());
+        gui.displayMessage(getStartingText());
         //default values init
         resetStartEnd();
         this.clickCellAction = 2;
@@ -82,9 +81,9 @@ public class Controller {
     class UpdateGridSizeListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             Point newSize = gui.getGridSize();
-            System.out.println(newSize.getX() + " " + newSize.getY());
+            //System.out.println(newSize.getX() + " " + newSize.getY());
             if (newSize.getX() <= 0 || newSize.getY() <= 0)
-                gui.displayErrorMessage("Invalid size");
+                gui.displayMessage("Invalid size");
             else if (newSize.equals(matrix.getSize())) {
                 gui.clearGrid();
                 resetStartEnd();
@@ -96,7 +95,7 @@ public class Controller {
                     registerCellMatrixListeners();
                     resetStartEnd();
                 } catch (Exception E) { //note add more/specific exception catches later including for Matrix end
-                    gui.displayErrorMessage("Invalid Input");
+                    gui.displayMessage("Invalid Input");
                 }
             }
         }
@@ -108,7 +107,7 @@ public class Controller {
             try {
                 clickCellAction = 0;
             } catch (Exception E) {
-                gui.displayErrorMessage("Add Start Toggle Button Error");
+                gui.displayMessage("Add Start Toggle Button Error");
             }
         }
     }
@@ -119,7 +118,7 @@ public class Controller {
             try {
                 clickCellAction = 1;
             } catch (Exception E) {
-                gui.displayErrorMessage("Add End Toggle Button Error");
+                gui.displayMessage("Add End Toggle Button Error");
             }
 
         }
@@ -131,7 +130,7 @@ public class Controller {
             try {
                 clickCellAction = 2;
             } catch (Exception E) {
-                gui.displayErrorMessage("Add Wall Toggle Button Error");
+                gui.displayMessage("Add Wall Toggle Button Error");
             }
         }
     }
@@ -144,7 +143,7 @@ public class Controller {
                 matrix.updateMatrix(start, end, gui.getGridAsIntArr());
                 algo.BFS(start, end, gui.getGrid());
             } catch (Exception E) {
-                gui.displayErrorMessage("Run error");
+                gui.displayMessage("Run error");
             }
         }
     }
@@ -154,7 +153,7 @@ public class Controller {
 
         //sets mouse pressed on mouse release 
         public void mouseReleased(MouseEvent e) {
-            System.out.println("released");
+            //System.out.println("released");
             Cell curr = (Cell) e.getSource();
 
             //only save on mouse release if current cell is a start or end and the currently held cell is start or end
@@ -178,7 +177,7 @@ public class Controller {
 
         //if mousePressed state is left or right click, then entering a cell should update the cells with the current cell type toggle
         public void mouseEntered(MouseEvent e) {
-            System.out.println(" entered");
+            //System.out.println(" entered");
             Cell curr = (Cell) e.getSource();
             lastCellVal = curr.getValue();
 
@@ -208,9 +207,8 @@ public class Controller {
 
         //only needed to be here because these are abstract methods of the MouseInputListener interface 
         public void mouseExited(MouseEvent e) {
-            System.out.println("mouse exited");
+            //System.out.println("mouse exited");
             Cell curr = (Cell) e.getSource();
-            System.out.println(curr.isStart());
 
             if (mousePressed == 1) {
                 if (curr.isStart() && clickCellAction == 0) {
@@ -249,7 +247,7 @@ public class Controller {
 
         //add input validation later for if a start/end cell already exists 
         public void mousePressed(MouseEvent e) {
-            System.out.println("mouse pressed");
+            //System.out.println("mouse pressed");
             Cell curr = (Cell) e.getSource();
 
             //if right click (clear)
@@ -288,7 +286,6 @@ public class Controller {
             }
 
             lastCellHeldVal = curr.getValue();
-            System.out.println(lastCellHeldVal);
 
             //sets what button is currently held down for dragging tracking
             if (e.getButton() == MouseEvent.BUTTON3) {
@@ -339,7 +336,7 @@ public class Controller {
             try {
                 algo.setDirection(Algorithms.OCTO_DIRECTIONS);
             } catch (Exception E) {
-                gui.displayErrorMessage("Could not change to Octo direction setting");
+                gui.displayMessage("Could not change to Octo direction setting");
             }
         }
     }
@@ -349,34 +346,27 @@ public class Controller {
             try {
                 algo.setDirection(Algorithms.QUAD_DIRECTIONS);
             } catch (Exception E) {
-                gui.displayErrorMessage("Could not change to Quad direction setting");
+                gui.displayMessage("Could not change to Quad direction setting");
             }
         }
     }
 
     //------------------------helper methods----------------------------
-    //updates the start and end global booleans to false if current cell is start or end and being overwritten
-    private void updateStartEndWhenUpdating(Cell curr) {
-        if (curr.isStart())
-            start = null;
-        if (curr.isEnd())
-            end = null;
-    }
 
     private void resetStartEnd() {
         start = null;
         end = null;
-        System.out.println("cleared start and end");
+        //System.out.println("cleared start and end");
     }
 
     private void clearStart() {
         start = null;
-        System.out.println("cleared start");
+        //System.out.println("cleared start");
     }
 
     private void clearEnd() {
         end = null;
-        System.out.println("cleared end");
+        //System.out.println("cleared end");
     }
 
     private void initializeDefaultSliderSpeed() {
@@ -384,6 +374,24 @@ public class Controller {
         algo.setLayerTime(times[0]);
         algo.setCheckTime(times[1]);
         algo.setQueueTime(times[2]);
+    }
+
+    private String getStartingText() {
+        return ("Welcome, to the pathfinding visualizer!\n\n"
+                + "Controls:"
+                + GUI.STRING_BREAK +
+                "Left click to add cells on the grid\n" +
+                "You can drag and move the start and end cell\n" +
+                "Hold and drag to add walls to quickly\n" +
+                "Right click to clear cell\n Hold and drag to quickly clear cells.\n" +
+                "You can change all the settings in real time \n" +
+                "Experiment to see the effects!\n"+
+                "To change grid size, input in the format r,c and update grid size\n" +
+                "To clear the grid, click the same update grid button\n" +
+                "I hope you enjoy! - Tshetrim (Tim)"
+                + GUI.STRING_BREAK +
+                "Note: Only Breadth-First Search \nis currently implemented."
+                + GUI.STRING_BREAK);
     }
 
 }
