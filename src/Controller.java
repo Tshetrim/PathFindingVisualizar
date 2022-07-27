@@ -14,8 +14,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputListener;
 
-
-
 public class Controller {
     private Matrix matrix;
     private GUI gui;
@@ -31,7 +29,6 @@ public class Controller {
 
     //private boolean start, end; //tracks if a start and end cell is in grid
     private Point start, end;
-
 
     public Controller(GUI gui, Matrix matrix, Algorithms algo, AudioWorker audio) {
         this.gui = gui;
@@ -470,7 +467,7 @@ public class Controller {
                 "To clear the grid, click the same update grid button\n" +
                 "I hope you enjoy! - Tshetrim (Tim)"
                 + GUI.STRING_BREAK +
-                "Note: Only Breadth-First Search \nis currently implemented.\n"
+                "Note: Depth-First Search*  \nis currently not implemented.\n"
                 + "https://github.com/Tshetrim/PathFindingVisualizar"
                 + GUI.STRING_BREAK);
     }
