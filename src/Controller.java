@@ -486,7 +486,7 @@ public class Controller {
             algo.BFS(start, end, gui.getGrid());
             //A* Pathfinding 
         } else if (currAlgo.equals(GUI.ALGO_CHOICES[1])) {
-            gui.displayMessage("sorry, algo still in works");
+            algo.AStarPathfinding(start, end, gui.getGrid());
         } else {
             gui.displayMessage("sorry, algo still in works");
         }

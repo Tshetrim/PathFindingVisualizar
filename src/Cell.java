@@ -8,6 +8,7 @@ public class Cell extends JButton {
     private int row;
 
     private int value; //0=clear, 1 = start, 2=end, -1= wall //3 searched //4 queued to be searched
+    private int[] costs;
 
     private static Color clearCellColor;
 
@@ -15,6 +16,7 @@ public class Cell extends JButton {
         this.row = row;
         this.col = col;
         this.value = 0;
+        this.costs = null;
 
         setBackground(clearCellColor);
         setForeground(Color.BLACK);
@@ -52,6 +54,14 @@ public class Cell extends JButton {
         setBackground(Color.ORANGE);
     }
 
+    //for A* path finding 
+    public void setAsQueuedTextCost() {
+        value = 4;
+        setCostText();
+        setBackground(Color.ORANGE);
+
+    }
+
     public void setAsBest() {
         value = 5;
         setText("Path");
@@ -84,6 +94,19 @@ public class Cell extends JButton {
             this.setAsQueued();
         else if (val == 5)
             this.setAsBest();
+    }
+
+    public void setCostText() {
+        if (costs != null) {
+            String prev = this.getText();
+            int gCost = this.costs[0];
+            int hCost = this.costs[1];
+            int fCost = this.costs[2];
+
+            this.setText(
+                    "<html>G:" + gCost + "  " + "H:" + hCost + "<br>" + "F:" + fCost + "<br>" + prev + "</html>");
+        } else
+            System.out.println("Cannot set cost text, cost is null");
     }
 
     public void addCellMouseListener(MouseInputListener listenerForCell) {
@@ -128,6 +151,14 @@ public class Cell extends JButton {
             clearCellColor = Color.DARK_GRAY;
         else
             clearCellColor = Color.WHITE;
+    }
+
+    public void setCosts(int gCost, int hCost, int fCost) {
+        this.costs = new int[] { gCost, hCost, fCost };
+    }
+
+    public int[] getCosts() {
+        return this.costs;
     }
 
 }
