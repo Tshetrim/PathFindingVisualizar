@@ -3,21 +3,24 @@
  * The size and states of the matrix which are dynamically changable through the GUI and Main also populates the matrix during algorithm searching
 */
 
+import java.awt.Color;
 import java.awt.event.*;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JSlider;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputListener;
 
+
+
 public class Controller {
     private Matrix matrix;
     private GUI gui;
     private Algorithms algo;
+    private AudioWorker audio;
 
     private String currentAlgorithm;
 
@@ -29,19 +32,21 @@ public class Controller {
     //private boolean start, end; //tracks if a start and end cell is in grid
     private Point start, end;
 
-    public Controller(GUI gui, Matrix matrix, Algorithms algo) {
+
+    public Controller(GUI gui, Matrix matrix, Algorithms algo, AudioWorker audio) {
         this.gui = gui;
         this.matrix = matrix;
         this.algo = algo;
+        this.audio = audio;
 
         this.gui.setGrid(matrix);
 
         registerListeners();
         initDefaultValues();
-
     }
 
     public void initDefaultValues() {
+
         gui.addText(getStartingText());
         gui.displayMessage(getStartingText());
         //default values init
@@ -66,6 +71,7 @@ public class Controller {
         gui.addOmniDirectionButtonListener(new OmniDirectionButtonListener());
         gui.addQuadDirectionButtonListener(new QuadDirectionButtonListener());
         gui.addToggleDarkLightModeListener(new DarkLightModeButtonListener());
+        gui.addToggleSoundListener(new ToggleSoundButtonListener());
 
         registerCellMatrixListeners();
     }
@@ -89,6 +95,10 @@ public class Controller {
             if (newSize.getX() <= 0 || newSize.getY() <= 0)
                 gui.displayMessage("Invalid size");
             else if (newSize.equals(matrix.getSize())) {
+                //stops running algo if there is any
+                if (algo.workerInit())
+                    algo.stopWorker();
+                //clears board 
                 gui.clearGrid();
                 resetStartEnd();
             } else {
@@ -143,9 +153,7 @@ public class Controller {
     class RunButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             try {
-                gui.clearExtrasGrid();
-                matrix.updateMatrix(start, end, gui.getGridAsIntArr());
-                algo.BFS(start, end, gui.getGrid());
+                runAlgo();
             } catch (Exception E) {
                 gui.displayMessage("Run error");
             }
@@ -156,15 +164,37 @@ public class Controller {
     class DarkLightModeButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             try {
-                JButton curr = (JButton)e.getSource();
+                JButton curr = (JButton) e.getSource();
                 String text = curr.getText();
 
-                if(text.equals("Light Mode")){
+                if (text.equals("Light Mode ☀")) {
                     gui.setLightMode();
-                    curr.setText("Dark Mode");
+                    curr.setText("Dark Mode ☽");
                 } else {
                     gui.setDarkMode();
-                    curr.setText("Light Mode");
+                    curr.setText("Light Mode ☀");
+                }
+
+            } catch (Exception E) {
+                gui.displayMessage("Run error");
+            }
+        }
+    }
+
+    class ToggleSoundButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            try {
+                JButton curr = (JButton) e.getSource();
+                String text = curr.getText();
+
+                if (text.equals("🔊")) {
+                    audio.setSoundOff();
+                    curr.setText("🔇");
+                    curr.setBackground(Color.lightGray);
+                } else {
+                    audio.setSoundOn();
+                    curr.setText("🔊");
+                    curr.setBackground(UIManager.getColor("JButton.background"));
                 }
 
             } catch (Exception E) {
@@ -180,6 +210,9 @@ public class Controller {
         public void mouseReleased(MouseEvent e) {
             //System.out.println("released");
             Cell curr = (Cell) e.getSource();
+            audio.playSound("pop_low.wav");
+
+            // System.out.println("on release " + lastCellVal);
 
             //only save on mouse release if current cell is a start or end and the currently held cell is start or end
             //and mouse pressed is not right click  (clear)
@@ -188,10 +221,24 @@ public class Controller {
                     if (lastCellHeldVal == 1 && start == null) {//if last cell held was a start / end
                         curr.setAsStart();
                         start = new Point(curr.getRow(), curr.getCol());
+                        System.out.println("released + " + lastCellVal);
+                        if (lastCellVal == 2) {
+                            clearEnd();
+                            System.out.println("start set to null");
+                        }
                     } else if (lastCellHeldVal == 2 && end == null) {
                         curr.setAsEnd();
                         end = new Point(curr.getRow(), curr.getCol());
+                        if (lastCellVal == 1)
+                            clearEnd();
                     }
+                }
+            }
+
+            if (lastCellHeldVal == 1 || lastCellHeldVal == 2) {
+                if (start != null && end != null) {
+                    gui.clearExtrasGrid();
+                    runAlgo();
                 }
             }
 
@@ -203,8 +250,16 @@ public class Controller {
         //if mousePressed state is left or right click, then entering a cell should update the cells with the current cell type toggle
         public void mouseEntered(MouseEvent e) {
             //System.out.println(" entered");
+
+            //playKeyClick(1);
+            if (mousePressed == 1 && clickCellAction == 2)
+                audio.playSound("pop_low.wav");
+            else
+                audio.playSound("pop_high.wav");
+
             Cell curr = (Cell) e.getSource();
             lastCellVal = curr.getValue();
+            // System.out.println(lastCellVal);
 
             if (mousePressed == 2) {
                 if (curr.isStart())
@@ -235,7 +290,7 @@ public class Controller {
             //System.out.println("mouse exited");
             Cell curr = (Cell) e.getSource();
 
-            if (mousePressed == 1) {
+            if (mousePressed == 1 && clickCellAction != 2) {
                 if (curr.isStart() && clickCellAction == 0) {
                     if (lastCellHeldVal == 1 || start == null) {
                         curr.clear();
@@ -410,13 +465,31 @@ public class Controller {
                 "Hold and drag to add walls to quickly\n" +
                 "Right click to clear cell\n Hold and drag to quickly clear cells.\n" +
                 "You can change all the settings in real time \n" +
-                "Experiment to see the effects!\n"+
+                "Experiment to see the effects!\n" +
                 "To change grid size, input in the format r,c and update grid size\n" +
                 "To clear the grid, click the same update grid button\n" +
                 "I hope you enjoy! - Tshetrim (Tim)"
                 + GUI.STRING_BREAK +
-                "Note: Only Breadth-First Search \nis currently implemented."
+                "Note: Only Breadth-First Search \nis currently implemented.\n"
+                + "https://github.com/Tshetrim/PathFindingVisualizar"
                 + GUI.STRING_BREAK);
+    }
+
+    public void runAlgo() {
+        String currAlgo = gui.getCurrentAlgo();
+
+        gui.clearExtrasGrid();
+        matrix.updateMatrix(start, end, gui.getGridAsIntArr());
+
+        //Depth-First Search
+        if (currAlgo.equals(GUI.ALGO_CHOICES[0])) {
+            algo.BFS(start, end, gui.getGrid());
+            //A* Pathfinding 
+        } else if (currAlgo.equals(GUI.ALGO_CHOICES[1])) {
+            gui.displayMessage("sorry, algo still in works");
+        } else {
+            gui.displayMessage("sorry, algo still in works");
+        }
     }
 
 }

@@ -11,8 +11,9 @@ public class MVCMain {
 
                 GUI theView = new GUI();
                 Matrix theMatrixModel = new Matrix(new Point(8, 8));
-                Algorithms algo = new Algorithms(theView);
-                Controller theController = new Controller(theView, theMatrixModel, algo);
+                AudioWorker audio = new AudioWorker();
+                Algorithms algo = new Algorithms(theView, audio);
+                Controller theController = new Controller(theView, theMatrixModel, algo, audio);
                 
             }
         });

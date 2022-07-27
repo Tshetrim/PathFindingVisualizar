@@ -8,13 +8,21 @@ import javax.swing.SwingWorker;
 
 public class Algorithms {
     private GUI gui;
+    private AudioWorker audio;
+
     private int layerTime;
     private int checkTime; //500
     private int queueTime; //500
     private int[][] directions;
 
+
     Algorithms(GUI gui) {
         this.gui = gui;
+    }
+
+    Algorithms(GUI gui, AudioWorker audio) {
+        this.gui = gui;
+        this.audio = audio;
     }
 
     final static int[][] OCTO_DIRECTIONS = new int[][] { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 },
@@ -22,10 +30,14 @@ public class Algorithms {
             { -1, 1 } };
     final static int[][] QUAD_DIRECTIONS = new int[][] { { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 } };
 
+    private SwingWorker<Void, Void> worker;
+
     public void BFS(Point start, Point end, Cell[][] arr) {
+        if (worker != null)
+            worker.cancel(true);
         long startTime = System.nanoTime();
 
-        SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
+        worker = new SwingWorker<Void, Void>() {
 
             @Override
             protected Void doInBackground() throws Exception {
@@ -108,7 +120,7 @@ public class Algorithms {
                             "\nSaw " + path.size() + " cells"
                             + GUI.STRING_BREAK);
                     gui.addText(outputText);
-                    gui.displayMessage(outputText);
+                    // gui.displayMessage(outputText);
 
                 } else {
                     String outputText = ("Unable to find path\n" +
@@ -127,6 +139,7 @@ public class Algorithms {
             @Override
             // Can safely update the GUI here.
             protected void process(List<Void> chunks) {
+                audio.playLowPop();
                 gui.validate();
                 gui.repaint();
             }
@@ -190,6 +203,15 @@ public class Algorithms {
 
     public void setDirection(int[][] directions) {
         this.directions = directions;
+    }
+
+    public boolean workerInit(){
+        return this.worker != null;
+    }
+
+    //stops the thread that is executing the algorithm
+    public void stopWorker(){
+        this.worker.cancel(true);
     }
 
 }

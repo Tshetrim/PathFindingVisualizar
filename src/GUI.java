@@ -23,15 +23,19 @@ public class GUI extends JFrame {
     private JTextField updateGridSizeField;
     private JButton updateGridSizeButton;
     private JTextArea currentAlgo;
-    private JButton algo1;
-    private JButton algo2;
-    private JButton runButton;
 
-    private JButton toggleDarkMode;
+    private JComboBox<String> choicesDropDown;
+    public static final String[] ALGO_CHOICES = new String[] { "Breadth-First Search", "A* Pathfinding",
+            "Depth-First Search" };
 
     private JButton addStartButton;
     private JButton addEndButton;
     private JButton addWallButton;
+
+    private JButton runButton;
+
+    private JButton toggleDarkMode;
+    private JButton toggleSound;
 
     //speed sliders 
     private JSlider layerTimeSlider;
@@ -152,11 +156,10 @@ public class GUI extends JFrame {
         updateGridSizeButton = new JButton("submit/clear");
 
         //display current algo 
-        currentAlgo = new JTextArea("Curr algo");
+        currentAlgo = new JTextArea("Current Algorithm:");
 
-        //row of algos
-        algo1 = new JButton("Breadth-First-Search");
-        algo2 = new JButton("A* Path Finding");
+        //dropdown algo choice 
+        choicesDropDown = new JComboBox<>(GUI.ALGO_CHOICES);
 
         //grid input buttons
         addStartButton = new JButton("Add Start");
@@ -167,7 +170,10 @@ public class GUI extends JFrame {
         runButton = new JButton("Run");
 
         //toggle night mode
-        toggleDarkMode = new JButton("Light Mode");
+        toggleDarkMode = new JButton("Light Mode ☀");
+
+        //toggle mute button
+        toggleSound = new JButton("🔊");
 
         //adding components to panel
         inputPane.add(gridSizeInputLabel);
@@ -175,8 +181,9 @@ public class GUI extends JFrame {
         inputPane.add(updateGridSizeButton);
 
         inputPane.add(currentAlgo);
-        inputPane.add(algo1);
-        inputPane.add(algo2);
+        //inputPane.add(algo1);
+        //inputPane.add(algo2);
+        inputPane.add(choicesDropDown);
 
         inputPane.add(addStartButton);
         inputPane.add(addEndButton);
@@ -186,6 +193,7 @@ public class GUI extends JFrame {
 
         inputPane.add(Box.createHorizontalStrut(20));
         inputPane.add(toggleDarkMode);
+        inputPane.add(toggleSound);
 
         return inputPane;
     }
@@ -292,6 +300,10 @@ public class GUI extends JFrame {
         toggleDarkMode.addActionListener(listenerForDarkLightButton);
     }
 
+    void addToggleSoundListener(ActionListener listenerForSoundButton) {
+        toggleSound.addActionListener(listenerForSoundButton);
+    }
+
     //second input pane 
     void addLayerTimeListener(ChangeListener listenerForLayerTimeSlider) {
         layerTimeSlider.addChangeListener(listenerForLayerTimeSlider);
@@ -384,6 +396,10 @@ public class GUI extends JFrame {
         return this.updateGridSizeField;
     }
 
+    public String getCurrentAlgo() {
+        return this.choicesDropDown.getSelectedItem().toString();
+    }
+
     //returns the JFrame[][] grid as an int[][]
     public int[][] getGridAsIntArr() {
         int[][] output = new int[grid.length][grid[0].length];
@@ -422,7 +438,7 @@ public class GUI extends JFrame {
         try {
 
             Cell.setEmptyColor(1);
-            if(grid!=null)
+            if (grid != null)
                 updateGridColor();
 
             UIManager.setLookAndFeel(new FlatLightLaf());
@@ -439,7 +455,7 @@ public class GUI extends JFrame {
 
         try {
             Cell.setEmptyColor(0);
-            if(grid!=null)
+            if (grid != null)
                 updateGridColor();
 
             UIManager.setLookAndFeel(new FlatDarkLaf());
