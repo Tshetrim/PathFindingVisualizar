@@ -9,12 +9,14 @@ public class Cell extends JButton {
 
     private int value; //0=clear, 1 = start, 2=end, -1= wall //3 searched //4 queued to be searched
 
+    private static Color clearCellColor;
+
     public Cell(int row, int col) {
         this.row = row;
         this.col = col;
         this.value = 0;
 
-        setBackground(Color.WHITE);
+        setBackground(clearCellColor);
         setForeground(Color.BLACK);
         //setBorder(new LineBorder(Color.BLACK));
 
@@ -60,8 +62,8 @@ public class Cell extends JButton {
         value = 0;
         setText("");
 
-        setBackground(Color.WHITE);
-        setForeground(Color.BLACK);
+        setBackground(clearCellColor);
+        //setForeground(Color.BLACK);
     }
 
     //cells can be current and other states simutaneously 
@@ -115,6 +117,17 @@ public class Cell extends JButton {
 
     public boolean isEnd() {
         return this.value == 2;
+    }
+
+    public boolean isEmpty() {
+        return this.value == 0;
+    }
+
+    public static void setEmptyColor(int setting) {
+        if (setting == 0)
+            clearCellColor = Color.DARK_GRAY;
+        else
+            clearCellColor = Color.WHITE;
     }
 
 }

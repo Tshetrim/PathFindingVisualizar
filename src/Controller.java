@@ -6,7 +6,10 @@
 import java.awt.event.*;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JButton;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputListener;
@@ -62,6 +65,7 @@ public class Controller {
         gui.addQueueTimeListener(new QueueTimeSliderListener());
         gui.addOmniDirectionButtonListener(new OmniDirectionButtonListener());
         gui.addQuadDirectionButtonListener(new QuadDirectionButtonListener());
+        gui.addToggleDarkLightModeListener(new DarkLightModeButtonListener());
 
         registerCellMatrixListeners();
     }
@@ -142,6 +146,27 @@ public class Controller {
                 gui.clearExtrasGrid();
                 matrix.updateMatrix(start, end, gui.getGridAsIntArr());
                 algo.BFS(start, end, gui.getGrid());
+            } catch (Exception E) {
+                gui.displayMessage("Run error");
+            }
+        }
+    }
+
+    //toggles between dark/light laf 
+    class DarkLightModeButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            try {
+                JButton curr = (JButton)e.getSource();
+                String text = curr.getText();
+
+                if(text.equals("Light Mode")){
+                    gui.setLightMode();
+                    curr.setText("Dark Mode");
+                } else {
+                    gui.setDarkMode();
+                    curr.setText("Light Mode");
+                }
+
             } catch (Exception E) {
                 gui.displayMessage("Run error");
             }

@@ -27,6 +27,8 @@ public class GUI extends JFrame {
     private JButton algo2;
     private JButton runButton;
 
+    private JButton toggleDarkMode;
+
     private JButton addStartButton;
     private JButton addEndButton;
     private JButton addWallButton;
@@ -66,7 +68,8 @@ public class GUI extends JFrame {
 
     GUI() {
 
-        setLookAndFeel(4);
+        //setLookAndFeel(4);
+        setDarkMode();
         this.setLayout(new BorderLayout());
 
         gridPane = getGridPanel();
@@ -163,6 +166,9 @@ public class GUI extends JFrame {
         //run button
         runButton = new JButton("Run");
 
+        //toggle night mode
+        toggleDarkMode = new JButton("Light Mode");
+
         //adding components to panel
         inputPane.add(gridSizeInputLabel);
         inputPane.add(updateGridSizeField);
@@ -177,6 +183,9 @@ public class GUI extends JFrame {
         inputPane.add(addWallButton);
 
         inputPane.add(runButton);
+
+        inputPane.add(Box.createHorizontalStrut(20));
+        inputPane.add(toggleDarkMode);
 
         return inputPane;
     }
@@ -216,7 +225,7 @@ public class GUI extends JFrame {
 
         //JText Area
         textArea = new JTextPane();
-        DefaultCaret caret = (DefaultCaret)textArea.getCaret();
+        DefaultCaret caret = (DefaultCaret) textArea.getCaret();
         caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
         // setting text pane to have centered text 
         StyledDocument documentStyle = textArea.getStyledDocument();
@@ -279,6 +288,11 @@ public class GUI extends JFrame {
         runButton.addActionListener(listenerForRunButton);
     }
 
+    void addToggleDarkLightModeListener(ActionListener listenerForDarkLightButton) {
+        toggleDarkMode.addActionListener(listenerForDarkLightButton);
+    }
+
+    //second input pane 
     void addLayerTimeListener(ChangeListener listenerForLayerTimeSlider) {
         layerTimeSlider.addChangeListener(listenerForLayerTimeSlider);
     }
@@ -348,6 +362,16 @@ public class GUI extends JFrame {
         }
     }
 
+    //for changing laf
+    public void updateGridColor() {
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[0].length; c++) {
+                if (grid[r][c].isEmpty())
+                    grid[r][c].clear();
+            }
+        }
+    }
+
     public void displayMessage(String errorMessage) {
         JOptionPane.showMessageDialog(this, errorMessage, "", JOptionPane.PLAIN_MESSAGE);
     }
@@ -384,6 +408,46 @@ public class GUI extends JFrame {
         } catch (Exception e) {
             displayMessage("Unable to write text to Text pane");
         }
+    }
+
+    public void refreshGridColor() {
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[0].length; c++) {
+
+            }
+        }
+    }
+
+    public void setLightMode() {
+        try {
+
+            Cell.setEmptyColor(1);
+            updateGridColor();
+
+            UIManager.setLookAndFeel(new FlatLightLaf());
+            SwingUtilities.updateComponentTreeUI(this);
+            this.validate();
+            this.repaint();
+
+        } catch (UnsupportedLookAndFeelException e) {
+            this.displayMessage("Error changing to dark mode");
+        }
+    }
+
+    public void setDarkMode() {
+
+        try {
+            Cell.setEmptyColor(0);
+            //updateGridColor();
+            UIManager.setLookAndFeel(new FlatDarkLaf());
+            SwingUtilities.updateComponentTreeUI(this);
+            this.validate();
+            this.repaint();
+
+        } catch (UnsupportedLookAndFeelException e) {
+            this.displayMessage("Error changing to light mode");
+        }
+
     }
 
 }
