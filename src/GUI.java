@@ -422,7 +422,8 @@ public class GUI extends JFrame {
         try {
 
             Cell.setEmptyColor(1);
-            updateGridColor();
+            if(grid!=null)
+                updateGridColor();
 
             UIManager.setLookAndFeel(new FlatLightLaf());
             SwingUtilities.updateComponentTreeUI(this);
@@ -438,7 +439,9 @@ public class GUI extends JFrame {
 
         try {
             Cell.setEmptyColor(0);
-            //updateGridColor();
+            if(grid!=null)
+                updateGridColor();
+
             UIManager.setLookAndFeel(new FlatDarkLaf());
             SwingUtilities.updateComponentTreeUI(this);
             this.validate();
