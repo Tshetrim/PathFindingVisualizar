@@ -10,11 +10,10 @@
 
 
 ## Algo Notes 
-<<<<<<< HEAD
+
 The current structure of the visulizer is such that graph is undirected. This means that every node next to a certain node is guaranteed to always be the same distance from that node. 
-=======
+
 The current structure of the visualizer is such that graph is undirected. This means that every node next to a certain node is guaranteed to always be the same distance from that node. 
->>>>>>> 96dab668616f17f143ea3f78b356645c24bc9d50
 The Breath-First Search works in this case because the graph is undirected. With the assumption that the next node is guaranteed to be that distance from the start, the BFS results are accurate. 
 In the case this was directed graph, ex. the start node's neighbours are not 1 unit away, but one is 4 units away, one is 1 unit away, and another is 20 units away, Djikstras Algorithm would be needed. 
 
