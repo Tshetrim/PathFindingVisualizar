@@ -445,6 +445,10 @@ public class GUI extends JFrame {
             SwingUtilities.updateComponentTreeUI(this);
             this.validate();
             this.repaint();
+            if (textArea != null) {
+                DefaultCaret caret = (DefaultCaret) textArea.getCaret();
+                caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+            }
 
         } catch (UnsupportedLookAndFeelException e) {
             this.displayMessage("Error changing to dark mode");
@@ -462,6 +466,10 @@ public class GUI extends JFrame {
             SwingUtilities.updateComponentTreeUI(this);
             this.validate();
             this.repaint();
+            if (textArea != null) {
+                DefaultCaret caret = (DefaultCaret) textArea.getCaret();
+                caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+            }
 
         } catch (UnsupportedLookAndFeelException e) {
             this.displayMessage("Error changing to light mode");
