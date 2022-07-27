@@ -11,15 +11,19 @@ public class Algorithms {
     private int layerTime;
     private int checkTime; //500
     private int queueTime; //500
+    private int[][] directions;
 
     Algorithms(GUI gui) {
         this.gui = gui;
     }
 
-    int[][] directions = new int[][] { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 },
+    final static int[][] OCTO_DIRECTIONS = new int[][] { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 },
+            { -1, 0 },
             { -1, 1 } };
+    final static int[][] QUAD_DIRECTIONS = new int[][] { { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 } };
 
     public void BFS(Point start, Point end, Cell[][] arr) {
+        long startTime = System.nanoTime();
 
         SwingWorker<Void, Void> worker = new SwingWorker<Void, Void>() {
 
@@ -80,6 +84,12 @@ public class Algorithms {
                         }
                     }
                 }
+
+                long endTime = System.nanoTime();
+                long executionTime = endTime - startTime;
+                double executionTimeInMillis = executionTime / 1000000;
+                double executionTimeInSec = executionTimeInMillis / 1000;
+
                 if (endFound) {
                     shortestPath = traceShortestPath(start, end, path);
                     // System.out.println(shortestPath);
@@ -90,10 +100,25 @@ public class Algorithms {
                                 arr[p.getX()][p.getY()].setAsBest();
                         }
                     }
+                    int length = shortestPath.size();
+                    String outputText = ("Shortest path length: " + length +
+                            "\nThat took: " + executionTime + " nanoseconds" +
+                            "\nThat took: " + executionTimeInMillis + " milliseconds" +
+                            "\nThat took: " + executionTimeInSec + " seconds" +
+                            "\nSaw " + path.size() + " cells"
+                            + GUI.STRING_BREAK);
+                    gui.addText(outputText);
+                    gui.displayErrorMessage(outputText);
 
                 } else {
+                    String outputText = ("Unable to find path\n" +
+                            "\nThat took: " + executionTime + " nanoseconds" +
+                            "\nThat took: " + executionTimeInMillis + " milliseconds" +
+                            "\nThat took: " + executionTimeInSec + " seconds" +
+                            "\nSaw " + path.size() + " cells"
+                            + GUI.STRING_BREAK);
+                    gui.addText(outputText);
                     gui.displayErrorMessage("Could not find a path");
-                    // System.out.println("Could not find a path");
                 }
 
                 return null;
@@ -161,6 +186,10 @@ public class Algorithms {
 
     public void setQueueTime(int queueTime) {
         this.queueTime = queueTime;
+    }
+
+    public void setDirection(int[][] directions) {
+        this.directions = directions;
     }
 
 }

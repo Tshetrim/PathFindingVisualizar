@@ -19,7 +19,9 @@ public class Controller {
     private String currentAlgorithm;
 
     private int clickCellAction; //0 = add start, 1 = add end, 2 = add wall
-    private int mousePressed = 0; //for dragging in grid
+    private int mousePressed = 0; //for dragging in grid   0 = none, 1 = left, 2 = right 
+    private int lastCellVal; //saving last cell entered for dragging 
+    private int lastCellHeldVal;
 
     //private boolean start, end; //tracks if a start and end cell is in grid
     private Point start, end;
@@ -29,19 +31,24 @@ public class Controller {
         this.matrix = matrix;
         this.algo = algo;
 
-        this.clickCellAction = 2;
-        registerListeners();
+        this.gui.setGrid(matrix);
 
-        run();
-        this.gui.displayErrorMessage(
-                "Right click to clear cell, drag to quickly fill cell. Only Breadth-First Search is currently implemented.");
+        registerListeners();
+        initDefaultValues();
+
+        gui.addText(
+                "Right click to clear cell, drag to quickly fill cell. \n Only Breadth-First Search is currently implemented."
+                        + GUI.STRING_BREAK);
     }
 
-    public void run() {
-        this.gui.setGrid(matrix);
-        registerCellMatrixListeners();
+    public void initDefaultValues() {
+        //default values init
+        resetStartEnd();
+        this.clickCellAction = 2;
         this.gui.getGridSizeTextField().setText(matrix.getSize().getX() + "," + matrix.getSize().getY());
-        initializeSliderSpeed();
+
+        initializeDefaultSliderSpeed();
+        algo.setDirection(Algorithms.OCTO_DIRECTIONS);
     }
 
     //adds action listeners to components in the GUI 
@@ -54,6 +61,10 @@ public class Controller {
         gui.addLayerTimeListener(new LayerTimeSliderListener());
         gui.addCheckTimeListener(new CheckTimeSliderListener());
         gui.addQueueTimeListener(new QueueTimeSliderListener());
+        gui.addOmniDirectionButtonListener(new OmniDirectionButtonListener());
+        gui.addQuadDirectionButtonListener(new QuadDirectionButtonListener());
+
+        registerCellMatrixListeners();
     }
 
     //adds action listeners to all cells n the grid -> must call after every setGrid(Matrix)
@@ -143,38 +154,85 @@ public class Controller {
 
         //sets mouse pressed on mouse release 
         public void mouseReleased(MouseEvent e) {
+            System.out.println("released");
+            Cell curr = (Cell) e.getSource();
+
+            //only save on mouse release if current cell is a start or end and the currently held cell is start or end
+            //and mouse pressed is not right click  (clear)
+            if (mousePressed != 2) {
+                if (!curr.isStart() || !curr.isEnd()) {
+                    if (lastCellHeldVal == 1 && start == null) {//if last cell held was a start / end
+                        curr.setAsStart();
+                        start = new Point(curr.getRow(), curr.getCol());
+                    } else if (lastCellHeldVal == 2 && end == null) {
+                        curr.setAsEnd();
+                        end = new Point(curr.getRow(), curr.getCol());
+                    }
+                }
+            }
+
+            lastCellHeldVal = -10;
+            lastCellVal = -10;
             mousePressed = 0;
         }
 
         //if mousePressed state is left or right click, then entering a cell should update the cells with the current cell type toggle
         public void mouseEntered(MouseEvent e) {
+            System.out.println(" entered");
             Cell curr = (Cell) e.getSource();
+            lastCellVal = curr.getValue();
 
-            if (mousePressed > 0) {
-                updateStartEndWhenUpdating(curr); //important this is here because if not being dragged, current cell not be getting updated and thus, if current cell is start/end, should not be cleared
-                if (mousePressed == 2) {
-                    curr.clear();
-                } else if (mousePressed == 1) {
-                    if (clickCellAction == 0 && start == null) {
-                        curr.setAsStart();
-                        start = new Point(curr.getRow(), curr.getCol());
-                        //start = new Point(curr.getX(), curr.getY());
-
-                    } else if (clickCellAction == 1 && end == null) {
-                        curr.setAsEnd();
-                        end = new Point(curr.getRow(), curr.getCol());
-                        //end = new Point(curr.getX(), curr.getY());
-
-                    } else if (clickCellAction == 2) {
-                        curr.setAsWall();
-                    }
+            if (mousePressed == 2) {
+                if (curr.isStart())
+                    clearStart();
+                else if (curr.isEnd())
+                    clearEnd();
+                curr.clear();
+            } else if (mousePressed == 1) {
+                if (clickCellAction == 0 && start == null) {
+                    curr.setAsStart();
+                    start = new Point(curr.getRow(), curr.getCol());
+                } else if (clickCellAction == 1 && end == null) {
+                    curr.setAsEnd();
+                    end = new Point(curr.getRow(), curr.getCol());
+                } else if (clickCellAction == 2) {
+                    if (curr.isStart())
+                        clearStart();
+                    else if (curr.isEnd())
+                        clearEnd();
+                    curr.setAsWall();
                 }
             }
+
         }
 
         //only needed to be here because these are abstract methods of the MouseInputListener interface 
         public void mouseExited(MouseEvent e) {
-            //do nothing
+            System.out.println("mouse exited");
+            Cell curr = (Cell) e.getSource();
+            System.out.println(curr.isStart());
+
+            if (mousePressed == 1) {
+                if (curr.isStart() && clickCellAction == 0) {
+                    if (lastCellHeldVal == 1 || start == null) {
+                        curr.clear();
+                        clearStart();
+                    }
+                } else if (curr.isEnd() && clickCellAction == 1) {
+                    if (lastCellHeldVal == 2 || end == null) {
+                        curr.clear();
+                        clearEnd();
+                    }
+                }
+
+                if (!(lastCellVal == 1 || lastCellVal == 2))
+                    curr.setByValue(lastCellVal);
+                if (lastCellHeldVal == 1 && lastCellVal == 2)
+                    curr.setByValue(lastCellVal);
+                else if (lastCellHeldVal == 2 && lastCellVal == 1)
+                    curr.setByValue(lastCellVal);
+
+            }
         }
 
         public void mouseMoved(MouseEvent e) {
@@ -191,24 +249,46 @@ public class Controller {
 
         //add input validation later for if a start/end cell already exists 
         public void mousePressed(MouseEvent e) {
+            System.out.println("mouse pressed");
             Cell curr = (Cell) e.getSource();
-            updateStartEndWhenUpdating(curr);
 
+            //if right click (clear)
             if (e.getButton() == MouseEvent.BUTTON3) {
+                if (curr.isStart())
+                    clearStart();
+                else if (curr.isEnd())
+                    clearEnd();
                 curr.clear();
-            } else if (e.getButton() == MouseEvent.BUTTON1) {
-                if (clickCellAction == 0 && start == null) {
-                    curr.setAsStart();
-                    start = new Point(curr.getRow(), curr.getCol());
-                    //start = new Point(curr.getX(), curr.getY());
-                } else if (clickCellAction == 1 && end == null) {
-                    curr.setAsEnd();
-                    end = new Point(curr.getRow(), curr.getCol());
-                    //end = new Point(curr.getX(), curr.getY());
-                } else if (clickCellAction == 2) {
-                    curr.setAsWall();
+            }
+            //if left click 
+            else if (e.getButton() == MouseEvent.BUTTON1) {
+                //for dragging
+                if (curr.isStart()) { //include && clickCellAction!=2 if want walls to overwrite start/end 
+                    clickCellAction = 0;
+                } else if (curr.isEnd()) {
+                    clickCellAction = 1;
+                }
+                //left click if current cell is not start or end 
+                else {
+                    //if add start && end not on board
+                    if (clickCellAction == 0 && start == null) {
+                        curr.setAsStart();
+                        start = new Point(curr.getRow(), curr.getCol());
+                    }
+                    //if add end && end not on board
+                    else if (clickCellAction == 1 && end == null) {
+                        curr.setAsEnd();
+                        end = new Point(curr.getRow(), curr.getCol());
+                    }
+                    //if add toggle set on wall 
+                    else if (clickCellAction == 2) {
+                        curr.setAsWall();
+                    }
                 }
             }
+
+            lastCellHeldVal = curr.getValue();
+            System.out.println(lastCellHeldVal);
 
             //sets what button is currently held down for dragging tracking
             if (e.getButton() == MouseEvent.BUTTON3) {
@@ -223,58 +303,83 @@ public class Controller {
     class LayerTimeSliderListener implements ChangeListener {
         @Override
         public void stateChanged(ChangeEvent e) {
-            JSlider source = (JSlider)e.getSource();
+            JSlider source = (JSlider) e.getSource();
             if (!source.getValueIsAdjusting()) {
-                int layerTime = (int)source.getValue();
+                int layerTime = (int) source.getValue();
                 algo.setLayerTime(layerTime);
-            }    
+            }
         }
     }
 
     class CheckTimeSliderListener implements ChangeListener {
         @Override
         public void stateChanged(ChangeEvent e) {
-            JSlider source = (JSlider)e.getSource();
+            JSlider source = (JSlider) e.getSource();
             if (!source.getValueIsAdjusting()) {
-                int checkTime = (int)source.getValue();
+                int checkTime = (int) source.getValue();
                 algo.setCheckTime(checkTime);
-            }    
+            }
         }
     }
 
     class QueueTimeSliderListener implements ChangeListener {
         @Override
         public void stateChanged(ChangeEvent e) {
-            JSlider source = (JSlider)e.getSource();
+            JSlider source = (JSlider) e.getSource();
             if (!source.getValueIsAdjusting()) {
-                int queueTime = (int)source.getValue();
+                int queueTime = (int) source.getValue();
                 algo.setQueueTime(queueTime);
-            }    
+            }
+        }
+    }
+
+    //add listeners to movement direction buttons 
+    class OmniDirectionButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            try {
+                algo.setDirection(Algorithms.OCTO_DIRECTIONS);
+            } catch (Exception E) {
+                gui.displayErrorMessage("Could not change to Octo direction setting");
+            }
+        }
+    }
+
+    class QuadDirectionButtonListener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            try {
+                algo.setDirection(Algorithms.QUAD_DIRECTIONS);
+            } catch (Exception E) {
+                gui.displayErrorMessage("Could not change to Quad direction setting");
+            }
         }
     }
 
     //------------------------helper methods----------------------------
     //updates the start and end global booleans to false if current cell is start or end and being overwritten
     private void updateStartEndWhenUpdating(Cell curr) {
-        int value = curr.getValue();
-        if (value == 1) {
+        if (curr.isStart())
             start = null;
-            //start = null;
-        } else if (value == 2) {
+        if (curr.isEnd())
             end = null;
-            //end = null;
-        }
     }
 
     private void resetStartEnd() {
         start = null;
         end = null;
-
-        //start = null;
-        //end = null;
+        System.out.println("cleared start and end");
     }
 
-    private void initializeSliderSpeed(){
+    private void clearStart() {
+        start = null;
+        System.out.println("cleared start");
+    }
+
+    private void clearEnd() {
+        end = null;
+        System.out.println("cleared end");
+    }
+
+    private void initializeDefaultSliderSpeed() {
         int[] times = gui.getInitialSliderValues();
         algo.setLayerTime(times[0]);
         algo.setCheckTime(times[1]);

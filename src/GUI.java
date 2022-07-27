@@ -1,6 +1,9 @@
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.ChangeListener;
+import javax.swing.text.*;
+
+import com.formdev.flatlaf.*;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -10,7 +13,7 @@ public class GUI extends JFrame {
     //JPanels contains all the JComponents
     private JPanel gridPane;
     private JPanel inputPane;
-    private JPanel timeSliderPane;
+    private JPanel rightInputPane;
 
     //------JComponents -------
     //gridComponent
@@ -42,17 +45,28 @@ public class GUI extends JFrame {
     private final int LAYER_TIME_MIN = 0;
     private final int LAYER_TIME_INIT = 200;
 
-    private final int CHECK_TIME_MAX = 3000;
+    private final int CHECK_TIME_MAX = 2000;
     private final int CHECK_TIME_MIN = 0;
     private final int CHECK_TIME_INIT = 50;
 
-    private final int QUEUE_TIME_MAX = 3000;
+    private final int QUEUE_TIME_MAX = 2000;
     private final int QUEUE_TIME_MIN = 0;
     private final int QUEUE_TIME_INIT = 50;
 
+    //Direction movement option buttons
+    private ButtonGroup directionButtonGroup;
+    private JRadioButton omniDirectionButton;
+    private JRadioButton quadDirectionButton;
+
+    //output component
+    private JTextPane textArea;
+    private JScrollPane textAreaScrollPane; // -> textArea goes inside textAreaScrollPane
+
+    static final String STRING_BREAK = ("\n----------------------------------------------\n");
+
     GUI() {
 
-        setLookAndFeel(1);
+        setLookAndFeel(4);
         this.setLayout(new BorderLayout());
 
         gridPane = getGridPanel();
@@ -61,14 +75,15 @@ public class GUI extends JFrame {
         inputPane = getInputPanel();
         this.add(inputPane, BorderLayout.NORTH);
 
-        timeSliderPane = getTimeSliderPanel();
-        this.add(timeSliderPane, BorderLayout.EAST);
+        rightInputPane = getTimeSliderPanel();
+        this.add(rightInputPane, BorderLayout.EAST);
 
         //JFRAME
+        //this.setUndecorated(true);
         this.setTitle("Pathfinding Visualizer");
-        this.setLocation(500, 500); //to-do: set to center
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.pack();
+        this.setLocationRelativeTo(null); //to-do: set to center
         this.setVisible(true);
     }
 
@@ -92,12 +107,25 @@ public class GUI extends JFrame {
                     | UnsupportedLookAndFeelException ex) {
             }
         } else if (val == 3) {
-            // try {
-            //     UIManager.setLookAndFeel( new FlatLightLaf() );
-            // } catch( Exception ex ) {
-            //     System.err.println( "Failed to initialize LaF" );
-            // }
+            try {
+                UIManager.setLookAndFeel(new FlatLightLaf());
+            } catch (Exception ex) {
+                System.err.println("Failed to initialize LaF");
+            }
+        } else if (val == 4) {
+            try {
+                UIManager.setLookAndFeel(new FlatDarkLaf());
+            } catch (Exception ex) {
+                System.err.println("Failed to initialize LaF");
+            }
+        } else if (val == 5) {
+            try {
+                UIManager.setLookAndFeel(new FlatDarculaLaf());
+            } catch (Exception ex) {
+                System.err.println("Failed to initialize LaF");
+            }
         }
+
     }
 
     //initializing and returning the grid panel 
@@ -154,8 +182,8 @@ public class GUI extends JFrame {
     }
 
     public JPanel getTimeSliderPanel() {
-        timeSliderPane = new JPanel();
-        timeSliderPane.setLayout(new BoxLayout(timeSliderPane, BoxLayout.Y_AXIS));
+        rightInputPane = new JPanel();
+        rightInputPane.setLayout(new BoxLayout(rightInputPane, BoxLayout.Y_AXIS));
 
         //JSliders
         layerTimeSlider = new JSlider(JSlider.HORIZONTAL, LAYER_TIME_MIN, LAYER_TIME_MAX, LAYER_TIME_INIT);
@@ -178,17 +206,54 @@ public class GUI extends JFrame {
         checkTimeLabel = new JLabel("Slowdown speed of checking cell");
         queueTimeLabel = new JLabel("Slowdown speed of queuing cell");
 
+        //Direction buttons 
+        directionButtonGroup = new ButtonGroup();
+        omniDirectionButton = new JRadioButton("Search in Eight directions ");
+        quadDirectionButton = new JRadioButton("Search in Four directions ");
+        directionButtonGroup.add(omniDirectionButton);
+        directionButtonGroup.add(quadDirectionButton);
+        omniDirectionButton.setSelected(true);
+
+        //JText Area
+        textArea = new JTextPane();
+        //setting text pane 
+        StyledDocument documentStyle = textArea.getStyledDocument();
+        SimpleAttributeSet centerAttribute = new SimpleAttributeSet();
+        StyleConstants.setAlignment(centerAttribute, StyleConstants.ALIGN_CENTER);
+        documentStyle.setParagraphAttributes(0, documentStyle.getLength(), centerAttribute, false);
+
+        textAreaScrollPane = new JScrollPane(textArea);
+        textAreaScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
         //adding components to panel
-        timeSliderPane.add(layerTimeLabel);
-        timeSliderPane.add(layerTimeSlider);
+        //Note Box is a container, it is not needed but helps to align within a BoxLayout
 
-        timeSliderPane.add(checkTimeLabel);
-        timeSliderPane.add(checkTimeSlider);
+        //Adding time slider components to a vertical box
+        Box timeSliderBox = Box.createVerticalBox();
+        timeSliderBox.add(layerTimeLabel);
+        timeSliderBox.add(layerTimeSlider);
 
-        timeSliderPane.add(queueTimeLabel);
-        timeSliderPane.add(queueTimeSlider);
+        timeSliderBox.add(checkTimeLabel);
+        timeSliderBox.add(checkTimeSlider);
 
-        return timeSliderPane;
+        timeSliderBox.add(queueTimeLabel);
+        timeSliderBox.add(queueTimeSlider);
+
+        //Adding direction button components to a horizontal box 
+        Box directionButtonsBox = Box.createVerticalBox();
+        directionButtonsBox.add(omniDirectionButton);
+        directionButtonsBox.add(quadDirectionButton);
+
+        //adding the boxes to the panel 
+        rightInputPane.add(timeSliderBox);
+        rightInputPane.add(directionButtonsBox);
+
+        Component margin = Box.createVerticalStrut(10);
+        //Adding output textfield
+        rightInputPane.add(margin);
+        rightInputPane.add(textAreaScrollPane);
+
+        return rightInputPane;
     }
 
     //input action listeners
@@ -224,6 +289,14 @@ public class GUI extends JFrame {
         queueTimeSlider.addChangeListener(listenerForQueueTimeSlider);
     }
 
+    void addOmniDirectionButtonListener(ActionListener listenerForOmniDirectionButton) {
+        omniDirectionButton.addActionListener(listenerForOmniDirectionButton);
+    }
+
+    void addQuadDirectionButtonListener(ActionListener listenerForQuadDirectionButton) {
+        quadDirectionButton.addActionListener(listenerForQuadDirectionButton);
+    }
+
     public Point getGridSize() {
         //add input validation later
         String[] input = updateGridSizeField.getText().split(",");
@@ -250,7 +323,8 @@ public class GUI extends JFrame {
                 gridPane.add(grid[r][c]);
             }
         }
-        this.pack();
+        this.validate();
+        this.repaint();
     }
 
     public void clearGrid() {
@@ -273,7 +347,7 @@ public class GUI extends JFrame {
     }
 
     public void displayErrorMessage(String errorMessage) {
-        JOptionPane.showMessageDialog(this, errorMessage);
+        JOptionPane.showMessageDialog(this, errorMessage, "", JOptionPane.PLAIN_MESSAGE);
     }
 
     public Cell[][] getGrid() {
@@ -298,6 +372,16 @@ public class GUI extends JFrame {
     //0 = layer, 1 = check, 2 = queue initial times 
     public int[] getInitialSliderValues() {
         return new int[] { LAYER_TIME_INIT, CHECK_TIME_INIT, QUEUE_TIME_INIT };
+    }
+
+    public void addText(String text) {
+        try {
+            String prev = textArea.getText();
+            textArea.setText(prev + text);
+
+        } catch (Exception e) {
+            displayErrorMessage("Unable to write text to Text pane");
+        }
     }
 
 }

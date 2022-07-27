@@ -14,11 +14,10 @@ public class Cell extends JButton {
         this.col = col;
         this.value = 0;
 
-
         setBackground(Color.WHITE);
         setForeground(Color.BLACK);
-        setBorder(new LineBorder(Color.BLACK));
-        
+        //setBorder(new LineBorder(Color.BLACK));
+
     }
 
     public void setAsStart() {
@@ -68,6 +67,21 @@ public class Cell extends JButton {
     //cells can be current and other states simutaneously 
     public void setAsCurrent() {
         setBorderPainted(false);
+    }
+
+    public void setByValue(int val) {
+        if (val == 1)
+            this.setAsStart();
+        else if (val == 2)
+            this.setAsEnd();
+        else if (val == -1)
+            this.setAsWall();
+        else if (val == 3)
+            this.setAsSeen();
+        else if (val == 4)
+            this.setAsQueued();
+        else if (val == 5)
+            this.setAsBest();
     }
 
     public void addCellMouseListener(MouseInputListener listenerForCell) {
