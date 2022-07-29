@@ -467,7 +467,8 @@ public class Controller {
                 "To clear the grid, click the same update grid button\n" +
                 "I hope you enjoy! - Tshetrim (Tim)"
                 + GUI.STRING_BREAK +
-                "Note: Depth-First Search*  \nis currently not implemented.\n"
+                "Note: Depth-First Search*  \nis currently not implemented.\n" +
+                "Also note comparing times between algorithms are\n only accurate when speed timers are all at 0\n"
                 + "https://github.com/Tshetrim/PathFindingVisualizar"
                 + GUI.STRING_BREAK);
     }

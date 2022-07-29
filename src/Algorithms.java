@@ -107,8 +107,11 @@ public class Algorithms {
                     boolean seeBestPath = true;
                     if (seeBestPath) {
                         for (Point p : shortestPath) {
-                            if (!p.equals(end))
+                            if (!p.equals(end)) {
                                 arr[p.getX()][p.getY()].setAsBest();
+                                // Thread.sleep(200);
+                                // publish();
+                            }
                         }
                     }
                     int length = shortestPath.size();
@@ -208,10 +211,11 @@ public class Algorithms {
                 while (!q.isEmpty() && !endFound) {
                     ringLength = q.size();
 
-                    //update gui
+                    //update gui - see note below about ring length
                     Thread.sleep(layerTime);
                     publish();
 
+                    //note this for loop for ring length and ring time is superfluous and not needed at all, it is just to provide functionality for layer time change
                     for (int i = 0; i < ringLength; i++) {
                         Cell current = q.poll();
                         Point currPos = new Point(current.getRow(), current.getCol());
@@ -273,8 +277,11 @@ public class Algorithms {
                     boolean seeBestPath = true;
                     if (seeBestPath) {
                         for (Point p : shortestPath) {
-                            if (!p.equals(end))
+                            if (!p.equals(end)) {
                                 arr[p.getX()][p.getY()].setAsBest();
+                                // Thread.sleep(200);
+                                // publish();
+                            }
                         }
                     }
                     int length = shortestPath.size();
