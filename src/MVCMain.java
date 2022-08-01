@@ -3,7 +3,6 @@ import javax.swing.SwingUtilities;
 public class MVCMain {
 
     public static void main(String[] args) {
-        
 
         SwingUtilities.invokeLater(new Runnable() {
             @Override
@@ -14,7 +13,7 @@ public class MVCMain {
                 AudioWorker audio = new AudioWorker();
                 Algorithms algo = new Algorithms(theView, audio);
                 Controller theController = new Controller(theView, theMatrixModel, algo, audio);
-                
+
             }
         });
 

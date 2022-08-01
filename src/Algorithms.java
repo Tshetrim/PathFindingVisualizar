@@ -1,5 +1,7 @@
 /* Algoritm class contains all the logic for the searching algoritms and helper methods
  * 
+ * It is a pseudo controller/model  ~ not perfectly keeping with MVC architecture because I did not handle how introducing multithreading would impact the architecutre
+ * It uses SwingWorker to provide multithreading and allowing the GUI eventDispatcherThread to update during the running time of the algorithm
  */
 
 import java.util.*;
@@ -24,10 +26,30 @@ public class Algorithms {
         this.audio = audio;
     }
 
+    //keeping it as this in case I get to adding a change direction searched picker 
+    final static int[] UP = new int[] { -1, 0 };
+    final static int[] DOWN = new int[] { 1, 0 };
+    final static int[] LEFT = new int[] { 0, -1 };
+    final static int[] RIGHT = new int[] { 0, 1 };
+    final static int[] NE = new int[] { -1, 1 };
+    final static int[] NW = new int[] { -1, -1 };
+    final static int[] SE = new int[] { 1, 1 };
+    final static int[] SW = new int[] { 1, -1 };
+
+    /* 
     final static int[][] OCTO_DIRECTIONS = new int[][] { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 },
             { -1, 0 },
             { -1, 1 } };
     final static int[][] QUAD_DIRECTIONS = new int[][] { { 0, 1 }, { 1, 0 }, { 0, -1 }, { -1, 0 } };
+    */
+
+    // final static int[][] OCTO_DIRECTIONS = new int[][] { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 },
+    // { -1, 0 },
+    // { -1, 1 } };
+    final static int[][] OCTO_DIRECTIONS = new int[][] { UP, NE, RIGHT, SE, DOWN, SW, LEFT, NW };
+    //final static int[][] QUAD_DIRECTIONS = new int[][] { UP, DOWN, LEFT, RIGHT };
+    final static int[][] QUAD_DIRECTIONS = new int[][] { UP, RIGHT, DOWN, LEFT };
+    //final static int[][] QUAD_DIRECTIONS = new int[][] { LEFT, UP, RIGHT, DOWN };
 
     private SwingWorker<Void, Void> worker;
 
@@ -267,6 +289,127 @@ public class Algorithms {
                     }
                 }
 
+                long endTime = System.nanoTime();
+                long executionTime = endTime - startTime;
+                int pathSize = path.size();
+
+                if (endFound) {
+                    shortestPath = traceShortestPath(start, end, path);
+                    // System.out.println(shortestPath);
+                    boolean seeBestPath = true;
+                    if (seeBestPath) {
+                        for (Point p : shortestPath) {
+                            if (!p.equals(end)) {
+                                arr[p.getX()][p.getY()].setAsBest();
+                                // Thread.sleep(200);
+                                // publish();
+                            }
+                        }
+                    }
+                    int length = shortestPath.size();
+                    String outputText = getEndMessage(executionTime, length, pathSize, true);
+                    gui.addText(outputText);
+                    // gui.displayMessage(outputText);
+
+                } else {
+                    String outputText = getEndMessage(executionTime, -1, pathSize, false);
+                    gui.addText(outputText);
+                    gui.displayMessage("Could not find a path");
+                }
+
+                return null;
+            }
+
+            @Override
+            // Can safely update the GUI here.
+            protected void process(List<Void> chunks) {
+                audio.playLowPop();
+                gui.validate();
+                gui.repaint();
+            }
+
+        };
+
+        worker.execute();
+    }
+
+    public void DFS(Point start, Point end, Cell[][] arr) {
+        if (worker != null)
+            worker.cancel(true);
+        long startTime = System.nanoTime();
+
+        worker = new SwingWorker<Void, Void>() {
+
+            @Override
+            protected Void doInBackground() throws Exception {
+
+                HashMap<String, Point> path = new HashMap<>();
+                ArrayList<Point> shortestPath = new ArrayList<>();
+                Deque<Cell> stack = new ArrayDeque<>();
+                path.put(start.toString(), start);
+                stack.push(arr[start.getX()][start.getY()]);
+
+                boolean endFound = false;
+                int ringLength = 0;
+
+                while (!stack.isEmpty() && !endFound) {
+                    ringLength = stack.size();
+                    // System.out.println("----------------------------new ring-------------------------");
+
+                    //update gui ~ kept only because BFS has it and to keep the slider functionality - it is extraneous here as with A*
+                    Thread.sleep(layerTime);
+                    publish();
+
+                    for (int i = 0; i < ringLength; i++) {
+                        Cell current = stack.pop();
+                        Point currPos = new Point(current.getRow(), current.getCol());
+                        // System.out.println("Current: " + currPos);
+                        if (currPos.equals(end)) {
+                            // System.out.println("end found, curr= " + currPos + " end=" + end);
+                            endFound = true;
+                            break;
+                        }
+
+                        //when unspooling stack - for visual purposes turn off if want to dont see the unspooling
+                        if (current.isSeen()) {
+                            current.setAsStacked(stack.size());
+                            Thread.sleep(checkTime);
+                            publish();
+                            //continue;
+                        }
+
+                        if (!currPos.equals(start))
+                            current.setAsSeen();
+
+                        //update GUI
+                        Thread.sleep(checkTime);
+                        publish();
+
+                        for (int[] direction : directions) {
+                            int nextX = direction[0] + currPos.getX();
+                            int nextY = direction[1] + currPos.getY();
+                            Point nextPos = new Point(nextX, nextY);
+
+                            //added is a check to allow if next cell is queued for visual effects -> otherwise would leave a queue gap until the end (remove to see)
+                            if (validPointOnMatrix(arr, nextPos)
+                                    && (!path.containsKey(nextPos.toString()) || arr[nextX][nextY].isStacked())) {
+                                path.put(nextPos.toString(), currPos);
+                                // System.out.println(path);
+                                stack.push(arr[nextPos.getX()][nextPos.getY()]);
+                                // System.out.println("------------------------pushed to stack: " + nextPos);
+                                if (nextPos.equals(end))
+                                    break;
+                                arr[nextPos.getX()][nextPos.getY()].setAsStacked(stack.size());
+
+                                //update GUI
+                                Thread.sleep(queueTime);
+                                publish();
+                            }
+                        }
+                    }
+                }
+
+                //end of algo 
                 long endTime = System.nanoTime();
                 long executionTime = endTime - startTime;
                 int pathSize = path.size();

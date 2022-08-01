@@ -5,6 +5,11 @@
     *Ending Point = 2
     *Obstacles  = -1
     *Empty = 0
+    *
+    *Note: Matrix was supposed to be the model but I found out later that it was more effective to pass the Cell[][] grid
+    *during runtime of the algorithms to the ALgorithms class instead. What I should have done
+    *is create a Cell Matrix that extends the matrix class to encapsulate the Cell[][] grid and operate on that
+    *Currently: Matrix still acts as an intermediary during input and the Cell[][] grid is built from the matrix, especially during grid size update
 */
 public class Matrix {
     private int[][] matrix;

@@ -1,6 +1,5 @@
 import java.awt.Color;
 import javax.swing.JButton;
-import javax.swing.border.LineBorder;
 import javax.swing.event.MouseInputListener;
 
 public class Cell extends JButton {
@@ -9,6 +8,7 @@ public class Cell extends JButton {
 
     private int value; //0=clear, 1 = start, 2=end, -1= wall //3 searched //4 queued to be searched
     private int[] costs;
+    private int position;
 
     private static Color clearCellColor;
 
@@ -66,6 +66,12 @@ public class Cell extends JButton {
         value = 5;
         setText("Path");
         setBackground(Color.BLUE);
+    }
+
+    public void setAsStacked(int position) {
+        value = 6;
+        setText("Stacked " + position);
+        setBackground(Color.ORANGE);
     }
 
     public void clear() {
@@ -144,6 +150,14 @@ public class Cell extends JButton {
 
     public boolean isEmpty() {
         return this.value == 0;
+    }
+
+    public boolean isQueue() {
+        return this.value == 4;
+    }
+
+    public boolean isStacked() {
+        return this.value == 6;
     }
 
     public static void setEmptyColor(int setting) {

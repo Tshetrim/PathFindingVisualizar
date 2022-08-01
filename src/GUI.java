@@ -221,7 +221,7 @@ public class GUI extends JFrame {
 
         layerTimeLabel = new JLabel("Slowdown speed of starting new layer");
         checkTimeLabel = new JLabel("Slowdown speed of checking cell");
-        queueTimeLabel = new JLabel("Slowdown speed of queuing cell");
+        queueTimeLabel = new JLabel("Slowdown speed of queuing/stacking cell");
 
         //Direction buttons 
         directionButtonGroup = new ButtonGroup();

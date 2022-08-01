@@ -467,8 +467,7 @@ public class Controller {
                 "To clear the grid, click the same update grid button\n" +
                 "I hope you enjoy! - Tshetrim (Tim)"
                 + GUI.STRING_BREAK +
-                "Note: Depth-First Search*  \nis currently not implemented.\n" +
-                "Also note comparing times between algorithms are\n only accurate when speed timers are all at 0\n"
+                "Also note comparing times between algorithms are\nonly accurate when speed timers are all at 0\n"
                 + "https://github.com/Tshetrim/PathFindingVisualizar"
                 + GUI.STRING_BREAK);
     }
@@ -485,8 +484,8 @@ public class Controller {
             //A* Pathfinding 
         } else if (currAlgo.equals(GUI.ALGO_CHOICES[1])) {
             algo.AStarPathfinding(start, end, gui.getGrid());
-        } else {
-            gui.displayMessage("sorry, algo still in works");
+        } else if (currAlgo.equals(GUI.ALGO_CHOICES[2])) {
+            algo.DFS(start, end, gui.getGrid());
         }
     }
 

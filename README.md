@@ -11,6 +11,7 @@ Download and run .jar file executable
 - figure out a way to implement weights into the grid, possibly with a type of node that if held over for a period of time causes the distance to be higher by making the cell a darker color. 
 - multi end node targeting
 - improved cell coloring. 
+- search direction chaning (drag and move order of direction searched)
 
 ## Algo Notes
 
