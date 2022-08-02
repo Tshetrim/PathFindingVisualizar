@@ -1,4 +1,5 @@
 ## Pathfinding Visualizer
+Demo on youtube: https://www.youtube.com/watch?v=oyfB0Nfynh0
 
 ## Installation Instruction
 
